@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.css";
+import { useHistory } from "react-router-dom";
 
 const Signup = () => {
+  const history = useHistory();
   const [user, setUser] = useState({
     name: "",
     email: "",
@@ -17,9 +19,40 @@ const Signup = () => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
 
+  const PostData = async (e) => {
+    e.preventDefault();
+    const { name, email, work, phone, password, cpassword } = user;
+
+    const res = await fetch("/register", {
+      
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name,
+        email,
+        phone,
+        work,
+        password,
+        cpassword,
+      }),
+    });
+    const data = await res.json();
+
+    if (data.status === 422 || !data) {
+      window.alert("Invalid Resgistration");
+      console.log("invalid registration");
+    } else {
+      window.alert("Registration sucessfull");
+      console.log("resgistration Sucessfull");
+
+      history.push("/login");
+    }
+  };
   return (
     <div className="container my-3 px-5">
-      <form className="mx-4">
+      <form className="mx-4" method="POST">
         <div class="form-group mb-2">
           <label for="name">Your Name</label>
           <input
@@ -95,7 +128,7 @@ const Signup = () => {
           />
         </div>
 
-        <button type="submit" class="btn btn-primary mt-4">
+        <button type="submit" class="btn btn-primary mt-4" onClick={PostData}>
           Submit
         </button>
       </form>
